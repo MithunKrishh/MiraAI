@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from app.models.schemas import TaskRequest, TaskResponse
-from app.services.intent_service import detect_intent
-from app.services.executor import execute_task
+from app.services.parser import parse_tasks
 
 router = APIRouter(
     prefix="/task",
@@ -10,10 +9,9 @@ router = APIRouter(
 
 @router.post("/", response_model=TaskResponse)
 def handle_task(request: TaskRequest):
-    intent = detect_intent(request.input)
-    result = execute_task(intent, request.input)
+    parsed_tasks = parse_tasks(request.input)
 
     return {
-        "message": result,
+        "message": f"Parsed tasks: {parsed_tasks}",
         "input": request.input
     }
