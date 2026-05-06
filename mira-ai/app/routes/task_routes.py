@@ -1,20 +1,17 @@
 from fastapi import APIRouter
 from app.models.schemas import TaskRequest, TaskResponse
+from app.services.intent_service import detect_intent
 
 router = APIRouter(
     prefix="/task",
     tags=["Task"]
 )
 
-@router.get("/test")
-def test_route():
-    return {"message": "Task route working ✅"}
-
-
-# 🔥 NEW ENDPOINT
 @router.post("/", response_model=TaskResponse)
 def handle_task(request: TaskRequest):
+    intent = detect_intent(request.input)
+
     return {
-        "message": "Task received successfully",
+        "message": f"Detected intent: {intent}",
         "input": request.input
     }
