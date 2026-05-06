@@ -1,7 +1,10 @@
 from fastapi import APIRouter
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/task",
+    tags=["Task"]
+)
 
 @router.get("/test")
 def test_route():
-    return {"message": "Route working"}
+    return {"message": "Task route working ✅"}
