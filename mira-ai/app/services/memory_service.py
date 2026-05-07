@@ -1,39 +1,32 @@
-import json
-import os
 from datetime import datetime
 
-MEMORY_FILE = "data/memory.json"
+from app.core.db import get_memory_collection
 
 def save_to_memory(task: str, result: str):
-    try:
-        os.makedirs(os.path.dirname(MEMORY_FILE), exist_ok=True)
-        with open(MEMORY_FILE, "r") as file:
-            data = json.load(file)
-    except Exception:
-        data = []
+    """Store a task execution result in MongoDB.
 
-    entry = {
-        "task": task,
-        "result": result,
-        "timestamp": datetime.now().isoformat()
-    }
-
-    data.append(entry)
+    If MongoDB is unavailable, we swallow the error to prevent API crashes.
+    """
+    entry = {"task": task, "result": result, "timestamp": datetime.now().isoformat()}
 
     try:
-        with open(MEMORY_FILE, "w") as file:
-            json.dump(data, file, indent=2)
+        collection = get_memory_collection()
+        collection.insert_one(entry)
     except Exception:
-        # Avoid crashing API calls if disk write fails.
         return
 
 
 def get_last_entry():
+    """Return the most recent memory entry.
+
+    Returns strings for backwards compatibility with older behavior.
+    """
     try:
-        with open(MEMORY_FILE, "r") as file:
-            data = json.load(file)
-            if not data:
-                return "No memory found."
-            return data[-1]
+        collection = get_memory_collection()
+        doc = collection.find_one(sort=[("timestamp", -1)])
+        if not doc:
+            return "No memory found."
+        doc.pop("_id", None)
+        return doc
     except Exception:
         return "Memory not initialized."
