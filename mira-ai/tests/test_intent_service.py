@@ -15,3 +15,11 @@ def test_detect_intent_retrieve_show():
 
 def test_detect_intent_unknown():
     assert detect_intent("do something else") == "unknown"
+
+
+def test_detect_intent_phrase_make_shorter():
+    assert detect_intent("make this shorter") == "summarize"
+
+
+def test_detect_intent_phrase_show_my_tasks():
+    assert detect_intent("show my tasks") == "retrieve"
